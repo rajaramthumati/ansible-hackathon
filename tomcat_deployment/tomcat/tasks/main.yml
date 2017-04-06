@@ -1,0 +1,9 @@
+---
+  - name: checking whether tomcat deployment is already there or not
+    shell: ls /opt |grep tomcat
+    ignore_errors: yes
+    register: tomcat_existence
+  - include: initial.yml
+    when: tomcat_existence.stdout.find('tomcat')==-1
+  - include: update.yml
+    when: tomcat_existence.stdout.find('tomcat')!=-1

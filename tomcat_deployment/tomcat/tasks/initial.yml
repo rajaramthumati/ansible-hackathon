@@ -1,0 +1,84 @@
+---
+  - include_vars: vault.yml
+
+  - name: add group "tomcat"
+    group: name=tomcat
+
+  - name: add user "tomcat"
+    user: name=tomcat group=tomcat home=/opt/tomcat/tomcat8 createhome=no
+#    become: True
+#    become_method: sudo
+
+  - name: creating tomcat directory
+    file: path=/opt/tomcat state=directory
+    become: yes
+    become_method: sudo
+
+  - name: getting tomcat tar file and untar tomcat tar file with permissions
+    unarchive: src="/root/apache-tomcat-8.5.12.zip" dest=/opt/tomcat/ remote_src=yes mode=u+x
+
+#  - name: getting tomcat tar file and untar tomcat tar file with permissions
+#    unarchive: src="http://redrockdigimark.com/apachemirror/tomcat/tomcat-8/v8.5.12/bin/apache-tomcat-8.5.12.zip" dest=/opt/tomcat/ remote_src=yes mode=u+x
+
+  - name: rename tomcat directory
+    shell: mv /opt/tomcat/apache-tomcat-8.5.12 /opt/tomcat/tomcat8
+
+  - name: creating symlink between apache-tomcat and latest
+    file: dest=/opt/tomcat/latest src=/opt/tomcat/tomcat8 state=link
+
+  - name: changing ownership of tomcat directory
+    file: path=/opt/tomcat/tomcat8 owner=tomcat group=tomcat state=directory recurse=yes
+
+
+#  - name: creating setenv.sh file and adding properties to it
+#    lineinfile: dest=/opt/tomcat/tomcat8/bin/setenv.sh state=present create=yes mode=0777 line="JAVA_OPTS="-Xms512M -Xmx2048M -XX:MaxPermSize=128m""
+
+  - name: creating tomcat.sh with content
+    lineinfile: dest=/etc/profile.d/tomcat.sh create=yes mode=u+x line="{{item.line}}"
+    with_items:
+      - { line: "#!/bin/bash\nexport CATALINA_HOME=/opt/tomcat/latest\nexport CATALINA_BASE=/opt/tomcat/latest\nPATH=$CATALINA_HOME/bin:$PATH\nPATH=$CATALINA_BASE/bin:$PATH\nexport PATH $CATALINA_HOME\nexport PATH $CATALINA_BASE\nexport CLASSPATH=."}
+#    become: yes
+#    become_method: sudo
+
+  - name: giving permissions to tomcat folder recursively
+    file: path=/opt/tomcat/tomcat8 mode=u+x recurse=yes
+
+  - name: Cleaning up reference Apps
+    shell: rm -rf /opt/tomcat/tomcat8/webapps/*
+
+  - name: donwloading latest artifact
+    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/tomcat8/webapps/ mode=0755
+
+  - name: change default port for tomcat
+    replace: dest=/opt/tomcat/tomcat8/conf/server.xml regexp="8080" replace="{{http_port}}"
+
+  - name: deploy iptables rules
+    template: src=iptables-save dest=/etc/sysconfig/iptables
+    when: "ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6'"
+    notify: restart iptables
+
+  - name: adding tomcat port to iptables
+    firewalld: port={{item}}/tcp permanent=true zone=public state=enabled
+    with_items:
+      - "{{http_port}}"
+      - "{{https_port}}"
+#    become: yes
+#    become_method: sudo
+    when: "ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'"
+
+  - name: configuring tomcat users
+    template: src=tomcat-users.xml dest=/opt/tomcat/tomcat8/conf/
+
+#  - name: saving iptables
+#    shell: firewall-cmd --reload
+#    become: yes
+#    become_method: sudo
+
+  - name: install tomcat as service
+    copy: src=tomcat-init-script.sh dest=/etc/init.d/tomcat mode=0755
+
+  - name: Start Tomcat
+    service: name=tomcat state=started enabled=yes
+
+  - name: wait for tomcat to start
+    wait_for: port={{http_port}}

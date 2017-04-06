@@ -1,0 +1,23 @@
+---
+#  - name: downloading jenkisn war file file
+#    get_url: url=https://updates.jenkins-ci.org/download/war/2.34/jenkins.war dest=/opt/tomcat/apache-tomcat-7.0.67/webapps
+
+#  - name: shutting down tomcat
+#    service: name=tomcat state=stopped
+
+#  - name: archiving existing artifact
+#    shell: tar cvzf /opt/tomcat/tomcat8/jenkins.tar /opt/tomcat/tomcat8/webapps/jenkins.war
+
+#  - name: Cleaning up work duirectory
+#    shell: rm -rf /opt/tomcat/tomcat8/webapps/*
+  
+  - name: copying new artifact
+#    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/tomcat8/webapps/ mode=0755 force=yes
+    get_url: url="https://updates.jenkins-ci.org/download/war/2.51/jenkins.war" dest=/opt/tomcat/tomcat8/webapps/ mode=0755 group=tomcat owner=tomcat force=yes
+  
+#  - name: starting tomcat
+#    service: name=tomcat state=started
+
+#  - name: wait for tomcat to start
+#    wait_for: port={{http_port}} timeout=300
+
