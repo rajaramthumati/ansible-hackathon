@@ -1,0 +1,7 @@
+[dev]
+localhost
+127.0.0.1
+
+[qa]
+localhost
+127.0.0.1
