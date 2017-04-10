@@ -6,15 +6,21 @@
 #    service: name=tomcat state=stopped
 
 #  - name: archiving existing artifact
-#    shell: tar cvzf /opt/tomcat/tomcat8/jenkins.tar /opt/tomcat/tomcat8/webapps/jenkins.war
+#    shell: tar cvzf /opt/tomcat/{{tomcat_directory_name}}/jenkins.tar /opt/tomcat/{{tomcat_directory_name}}/webapps/jenkins.war
 
 #  - name: Cleaning up work duirectory
-#    shell: rm -rf /opt/tomcat/tomcat8/webapps/*
+#    shell: rm -rf /opt/tomcat/{{tomcat_directory_name}}/webapps/*
   
   - name: copying new artifact
-#    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/tomcat8/webapps/ mode=0755 force=yes
-    get_url: url="https://updates.jenkins-ci.org/download/war/2.51/jenkins.war" dest=/opt/tomcat/tomcat8/webapps/ mode=0755 group=tomcat owner=tomcat force=yes
-  
+#    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 force=yes
+    get_url: url="https://updates.jenkins-ci.org/download/war/2.51/jenkins.war" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 group=tomcat owner=tomcat force=yes
+
+  - name: checking health
+    uri: url=http://{{hostname}}:{{http_port}}/jenkins user=tomcat_admin_username password=tomcat_admin_password status_code=200 timeout=300
+    register: result_health_check
+  - name: reverting deployment if health check fails
+    unarchive: /opt/tomcat/{{tomcat_directory_name}}/jenkins.tar
+
 #  - name: starting tomcat
 #    service: name=tomcat state=started
 
