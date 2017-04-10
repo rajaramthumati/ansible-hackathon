@@ -18,10 +18,10 @@
   - name: checking health
     uri: url=http://{{hostname}}:{{http_port}}/jenkins user=tomcat_admin_username password=tomcat_admin_password status_code=200 timeout=300
     register: result_health_check
-
+    ignore_errors: yes
   - name: reverting deployment if health check fails
     unarchive: /opt/tomcat/{{tomcat_directory_name}}/jenkins.tar dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=u+x
-
+    when: result_health_check |failed
 #  - name: starting tomcat
 #    service: name=tomcat state=started
 
