@@ -1,5 +1,5 @@
 ---
-- hosts: "{{hostname}}"
+- hosts: "{{environment}}"
   become: yes
   become_method: sudo
   remote_user: "{{username}}"
