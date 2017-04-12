@@ -1,0 +1,12 @@
+---
+  - include_vars: vault.yml
+
+  - name: checking whether tomcat deployment is already there or not
+    stat: path=/opt/tomcat
+    register: tomcat_existence
+
+  - include: initial.yml
+    when: not tomcat_existence.stat.exists
+
+  - include: update.yml
+    when: tomcat_existence.stat.exists and tomcat_existence.stat.isdir

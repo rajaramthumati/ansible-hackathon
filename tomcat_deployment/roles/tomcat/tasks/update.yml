@@ -1,0 +1,32 @@
+---
+
+  - stat: path=/opt/tomcat/{{tomcat_directory_name}}/webapps/{{context}}
+    register: context_existence
+
+  - name: archiving existing artifact data
+    shell: tar cvf {{context}}-archive.tar {{context}}*
+    args:
+      chdir: /opt/tomcat/{{tomcat_directory_name}}/webapps/
+    when: context_existence.stat.exists
+  
+  - stat: path={{context}}-archive.tar
+    register: backup_existence
+
+  - name: copying new artifact
+#    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 force=yes
+    get_url: url="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ validate_certs=no mode=0755 group=tomcat owner=tomcat force=yes
+
+  - name: checking health
+    uri: url=http://{{inventory_hostname}}:{{http_port}}/{{context}} user={{tomcat_admin_username}} password={{tomcat_admin_password}} status_code=403 timeout=300
+    register: result_health_check
+    ignore_errors: yes
+
+  - name: reverting deployment if health check fails
+    unarchive: src={{context}}-archive.tar dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=u+x
+    when: result_health_check |failed and context_existence.stat.exists and backup_existence.stat.exists
+
+  - name: wait for tomcat to start
+    wait_for: port={{http_port}} timeout=300
+
+# - fail: msg="deployment failed with errors"
+#    when: result_health_check |failed

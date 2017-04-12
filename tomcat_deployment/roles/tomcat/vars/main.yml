@@ -1,0 +1,7 @@
+---
+# vars file for tomcat
+#http_port: 8080  ------ placed in group_vars
+#https_port: 8443 ------ placed in group_vars
+
+tomcat_admin_username: admin
+tomcat_admin_password: "{{vault_tomcat_admin_password}}"
