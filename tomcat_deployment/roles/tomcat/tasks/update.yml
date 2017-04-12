@@ -17,7 +17,7 @@
     get_url: url="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ validate_certs=no mode=0755 group=tomcat owner=tomcat force=yes
 
   - name: checking health
-    uri: url=http://{{inventory_hostname}}:{{http_port}}/{{context}} user={{tomcat_admin_username}} password={{tomcat_admin_password}} status_code=403 timeout=300
+    uri: url=http://{{inventory_hostname}}:{{http_port}}/{{context}} user={{tomcat_admin_username}} password={{tomcat_admin_password}} status_code=200 timeout=300
     register: result_health_check
     ignore_errors: yes
 
