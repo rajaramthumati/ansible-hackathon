@@ -12,7 +12,7 @@ ansible version 2.0 or later
 
 4) Create file with group name what you mentioned in inventory file with .yml extension under group_vars directory
 
-     Example:
+     Example for content in inventory file:
         [dev]
         locahost
      
