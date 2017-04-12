@@ -20,7 +20,7 @@ ansible version 2.0 or later
      https_port: 8443
      tomcat_directory_name: tomcat8
 5) Run below command to deploy Tomcat
-   ansible-playbook -vvvv -i inventory deploy_tomcat.yml --extra-vars '{"environment":"dev","artifact_url":"url-to-download-artifact","context":"context-of-artifact"}'
+   ansible-playbook -vvvv -i inventory deploy_tomcat.yml --extra-vars '{"environment":"dev","artifact_url":"url-to-download-artifact","context":"context-of-artifact"}' --vault-password-file password_file.txt
      
      
       
