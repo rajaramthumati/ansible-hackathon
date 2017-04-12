@@ -4,7 +4,7 @@ ansible version 2.0 or later
 
 # Installation instructions to deploy Tomcat
 
-1) git clone -b develop https://scm.lhstaging.com/allergan/lh-ansible
+1) git clone -b develop https://scm.lhstaging.com/allergan/lh-ansible.git
 2) Goto tomcat_deployment directory under lh-ansible
 3) Change the values in inventory file
 4) Create file with group name what you mentioned in inventory file with .yml extension under group_vars directory
