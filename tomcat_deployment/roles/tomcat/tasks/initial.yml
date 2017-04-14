@@ -1,10 +1,10 @@
 ---
 
-  - name: add group "tomcat"
-    group: name=tomcat
+#  - name: add group "tomcat"
+#    group: name=tomcat
 
-  - name: add user "tomcat"
-    user: name=tomcat group=tomcat home=/opt/tomcat/{{tomcat_directory_name}} createhome=no
+#  - name: add user "tomcat"
+#    user: name=tomcat group=tomcat home=/opt/tomcat/{{tomcat_directory_name}} createhome=no
 #    become: True
 #    become_method: sudo
 
