@@ -29,8 +29,8 @@
     file: path=/opt/tomcat/{{tomcat_directory_name}} owner=tomcat group=tomcat state=directory recurse=yes
 
 
-#  - name: creating setenv.sh file and adding properties to it
-#    lineinfile: dest=/opt/tomcat/{{tomcat_directory_name}}/bin/setenv.sh state=present create=yes mode=0777 line="JAVA_OPTS="-Xms512M -Xmx2048M -XX:MaxPermSize=128m""
+  - name: creating setenv.sh file and adding properties to it
+    lineinfile: dest=/opt/tomcat/{{tomcat_directory_name}}/bin/setenv.sh state=present create=yes mode=0777 line="JAVA_OPTS=\"-Xms512M -Xmx2048M -XX:MaxPermSize=128m\"\nJAVA_OPTS=\"$JAVA_OPTS -Dspring.profiles.active={{environment|upper}}\"\nJAVA_OPTS=\"$JAVA_OPTS -DLOG_FILE_PATH={{service_log_files_path}}\""
 
   - name: creating tomcat.sh with content
     lineinfile: dest=/etc/profile.d/tomcat.sh create=yes mode=u+x line="{{item.line}}"
@@ -46,7 +46,7 @@
     shell: rm -rf /opt/tomcat/{{tomcat_directory_name}}/webapps/*
 
   - name: donwloading latest artifact
-    get_url: url="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 validate_certs=no
+    copy: src="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat
 
   - name: change default port for tomcat
     replace: dest=/opt/tomcat/{{tomcat_directory_name}}/conf/server.xml regexp="8080" replace="{{http_port}}"
