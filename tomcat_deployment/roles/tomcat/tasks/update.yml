@@ -4,12 +4,12 @@
     register: context_existence
 
   - name: archiving existing artifact data
-    shell: tar cvf {{context}}-archive.tar {{context}}*
+    shell: tar cvf ../{{context}}-archive.tar {{context}}*
     args:
       chdir: /opt/tomcat/{{tomcat_directory_name}}/webapps/
     when: context_existence.stat.exists
   
-  - stat: path={{context}}-archive.tar
+  - stat: path=../{{context}}-archive.tar
     register: backup_existence
 
   - name: copying new artifact
@@ -22,7 +22,7 @@
     ignore_errors: yes
 
   - name: reverting deployment if health check fails
-    unarchive: src={{context}}-archive.tar dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=u+x
+    unarchive: src=../{{context}}-archive.tar dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=u+x
     when: result_health_check |failed and context_existence.stat.exists and backup_existence.stat.exists
 
   - name: wait for tomcat to start
