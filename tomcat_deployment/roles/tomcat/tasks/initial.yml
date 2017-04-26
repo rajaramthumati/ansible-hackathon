@@ -30,7 +30,7 @@
 
 
   - name: creating setenv.sh file and adding properties to it
-    lineinfile: dest=/opt/tomcat/{{tomcat_directory_name}}/bin/setenv.sh state=present create=yes mode=0777 line="#!/bin/bash\nCATALINA_HOME=/opt/tomcat/{{tomcat_directory_name}}\nCATALINA_BASE=/opt/tomcat/{{tomcat_directory_name}}\nPATH=$CATALINA_HOME/bin:$PATH\nPATH=$CATALINA_BASE/bin:$PATH\nPATH $CATALINA_HOME\nPATH $CATALINA_BASE\nCLASSPATH=.\nJAVA_OPTS=\"-Xms512M -Xmx2048M -XX:MaxPermSize=128m\"\nJAVA_OPTS=\"$JAVA_OPTS -Dspring.profiles.active={{environmentt|upper}}\""
+    lineinfile: dest=/opt/tomcat/{{tomcat_directory_name}}/bin/setenv.sh state=present create=yes mode=0777 line="#!/bin/bash\nCATALINA_HOME=/opt/tomcat/{{tomcat_directory_name}}\nCATALINA_BASE=/opt/tomcat/{{tomcat_directory_name}}\nPATH=$CATALINA_HOME/bin:$PATH\nPATH=$CATALINA_BASE/bin:$PATH\nJAVA_OPTS=\"-Xms512M -Xmx2048M -XX:MaxPermSize=128m\"\nJAVA_OPTS=\"$JAVA_OPTS -Dspring.profiles.active={{environmentt|upper}}\""
 
 
   - name: giving permissions to tomcat folder recursively
