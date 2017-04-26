@@ -19,7 +19,7 @@
     args:
       chdir: /tmp
   - name: donwloading latest artifact
-    copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat force=yes
+    copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=0755 owner=tomcat group=tomcat force=yes
 
   - file: path=/tmp/{{context}}.war state=absent
 
