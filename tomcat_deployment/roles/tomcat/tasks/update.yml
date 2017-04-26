@@ -14,7 +14,7 @@
 
 
   - copy: src="{{artifact_url}}" dest=.
-  - shell: mv ./$(basename "{{artifact_url}}") ./"{{context}}".war
+  - shell: mv ./$(basename "{{artifact_url}}") ./{{context}}.war
 
   - name: donwloading latest artifact
     copy: src=./{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat force=yes
