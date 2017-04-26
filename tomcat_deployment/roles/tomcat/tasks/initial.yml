@@ -13,11 +13,11 @@
     become: yes
     become_method: sudo
 
-  - name: getting tomcat tar file and untar tomcat tar file with permissions
-    unarchive: src="/root/apache-tomcat-8.0.43.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
-
 #  - name: getting tomcat tar file and untar tomcat tar file with permissions
-#    unarchive: src="http://redrockdigimark.com/apachemirror/tomcat/tomcat-8/v8.5.13/bin/apache-tomcat-8.5.13.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
+#    unarchive: src="/root/apache-tomcat-8.0.43.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
+
+  - name: getting tomcat tar file and untar tomcat tar file with permissions
+    unarchive: src="http://redrockdigimark.com/apachemirror/tomcat/tomcat-8/v8.5.13/bin/apache-tomcat-8.5.13.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
 
   - name: rename tomcat directory
     shell: mv /opt/tomcat/apache-tomcat-8.0.43 /opt/tomcat/{{tomcat_directory_name}}
