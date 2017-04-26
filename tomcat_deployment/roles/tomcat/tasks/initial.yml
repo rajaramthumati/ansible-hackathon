@@ -13,14 +13,14 @@
     become: yes
     become_method: sudo
 
-#  - name: getting tomcat tar file and untar tomcat tar file with permissions
-#    unarchive: src="/root/apache-tomcat-8.5.13.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
-
   - name: getting tomcat tar file and untar tomcat tar file with permissions
-    unarchive: src="http://redrockdigimark.com/apachemirror/tomcat/tomcat-8/v8.5.13/bin/apache-tomcat-8.5.13.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
+    unarchive: src="/root/apache-tomcat-8.0.43.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
+
+#  - name: getting tomcat tar file and untar tomcat tar file with permissions
+#    unarchive: src="http://redrockdigimark.com/apachemirror/tomcat/tomcat-8/v8.5.13/bin/apache-tomcat-8.5.13.tar.gz" dest=/opt/tomcat/ remote_src=yes mode=u+x
 
   - name: rename tomcat directory
-    shell: mv /opt/tomcat/apache-tomcat-8.5.13 /opt/tomcat/{{tomcat_directory_name}}
+    shell: mv /opt/tomcat/apache-tomcat-8.0.43 /opt/tomcat/{{tomcat_directory_name}}
 
   - name: creating symlink between apache-tomcat and latest
     file: dest=/opt/tomcat/latest src=/opt/tomcat/{{tomcat_directory_name}} state=link
@@ -30,23 +30,25 @@
 
 
   - name: creating setenv.sh file and adding properties to it
-    lineinfile: dest=/opt/tomcat/{{tomcat_directory_name}}/bin/setenv.sh state=present create=yes mode=0777 line="JAVA_OPTS=\"-Xms512M -Xmx2048M -XX:MaxPermSize=128m\"\nJAVA_OPTS=\"$JAVA_OPTS -Dspring.profiles.active={{environment|upper}}\"\nJAVA_OPTS=\"$JAVA_OPTS -DLOG_FILE_PATH={{service_log_files_path}}\""
+    lineinfile: dest=/opt/tomcat/{{tomcat_directory_name}}/bin/setenv.sh state=present create=yes mode=0777 line="#!/bin/bash\nCATALINA_HOME=/opt/tomcat/{{tomcat_directory_name}}\nCATALINA_BASE=/opt/tomcat/{{tomcat_directory_name}}\nPATH=$CATALINA_HOME/bin:$PATH\nPATH=$CATALINA_BASE/bin:$PATH\nPATH $CATALINA_HOME\nPATH $CATALINA_BASE\nCLASSPATH=.\nJAVA_OPTS=\"-Xms512M -Xmx2048M -XX:MaxPermSize=128m\"\nJAVA_OPTS=\"$JAVA_OPTS -Dspring.profiles.active={{environmentt|upper}}\""
 
-  - name: creating tomcat.sh with content
-    lineinfile: dest=/etc/profile.d/tomcat.sh create=yes mode=u+x line="{{item.line}}"
-    with_items:
-      - { line: "#!/bin/bash\nexport CATALINA_HOME=/opt/tomcat/{{tomcat_directory_name}}\nexport CATALINA_BASE=/opt/tomcat/{{tomcat_directory_name}}\nPATH=$CATALINA_HOME/bin:$PATH\nPATH=$CATALINA_BASE/bin:$PATH\nexport PATH $CATALINA_HOME\nexport PATH $CATALINA_BASE\nexport CLASSPATH=."}
-#    become: yes
-#    become_method: sudo
 
   - name: giving permissions to tomcat folder recursively
     file: path=/opt/tomcat/{{tomcat_directory_name}} mode=u+x recurse=yes
 
   - name: Cleaning up reference Apps
-    shell: rm -rf /opt/tomcat/{{tomcat_directory_name}}/webapps/*
+    shell: rm -rf /opt/tomcat/{{tomcat_directory_name}}/webapps/{{item}}
+    with_items:
+    - docs
+    - examples
+
+  - copy: src="{{artifact_url}}" dest=/tmp/
+  - shell: mv /tmp/$(basename "{{artifact_url}}") /tmp/"{{context}}".war
 
   - name: donwloading latest artifact
-    copy: src="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat
+    copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat
+
+  - file: path=/tmp/"{{context}}".war state=absent
 
   - name: change default port for tomcat
     replace: dest=/opt/tomcat/{{tomcat_directory_name}}/conf/server.xml regexp="8080" replace="{{http_port}}"

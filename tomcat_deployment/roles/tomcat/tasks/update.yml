@@ -12,9 +12,17 @@
   - stat: path=../{{context}}-archive.tar
     register: backup_existence
 
-  - name: copying new artifact
+
+  - copy: src="{{artifact_url}}" dest=/tmp/
+  - shell: mv /tmp/$(basename "{{artifact_url}}") /tmp/"{{context}}".war
+
+  - name: donwloading latest artifact
+    copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat force=yes
+
+
+#  - name: copying new artifact
 #    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 force=yes
-    copy: src="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 group=tomcat owner=tomcat force=yes
+#    copy: src="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 group=tomcat owner=tomcat force=yes
 
   - name: checking health
     uri: url=http://{{inventory_hostname}}:{{http_port}}/{{context}} user={{tomcat_admin_username}} password={{tomcat_admin_password}} status_code=302 timeout=300
