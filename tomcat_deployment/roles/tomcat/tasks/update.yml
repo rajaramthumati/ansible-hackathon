@@ -13,13 +13,13 @@
     register: backup_existence
 
 
-  - copy: src="{{artifact_url}}" dest=.
-  - shell: mv ./$(basename "{{artifact_url}}") ./{{context}}.war
+  - copy: src="{{artifact_url}}" dest=/tmp/
+  - shell: mv /tmp/$(basename "{{artifact_url}}") /tmp/{{context}}.war
 
   - name: donwloading latest artifact
-    copy: src=./{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat force=yes
+    copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat force=yes
     
-  - file: path=./{{context}}.war state=absent
+  - file: path=/tmp/{{context}}.war state=absent
 
 
 #  - name: copying new artifact
