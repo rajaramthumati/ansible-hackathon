@@ -16,7 +16,7 @@
   - copy: src="{{artifact_url}}" dest=/tmp/ mode=0755 owner=tomcat group=tomcat force=yes
 #  - shell: echo $(basename "{{artifact_url}}")
   - shell: mv $(basename "{{artifact_url}}") {{context}}.war
-     args:
+    args:
       chdir: /tmp
   - name: donwloading latest artifact
     copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 owner=tomcat group=tomcat force=yes
