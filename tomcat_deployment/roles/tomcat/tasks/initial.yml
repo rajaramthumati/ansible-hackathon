@@ -37,18 +37,22 @@
     file: path=/opt/tomcat/{{tomcat_directory_name}} mode=u+x recurse=yes
 
   - name: Cleaning up reference Apps
-    shell: rm -rf /opt/tomcat/{{tomcat_directory_name}}/webapps/{{item}}
+    file: path=/opt/tomcat/{{tomcat_directory_name}}/webapps/{{item}} state=absent
     with_items:
     - docs
     - examples
 
   - copy: src="{{artifact_url}}" dest=/tmp/ mode=0755 owner=tomcat group=tomcat force=yes
+  
 #  - shell: echo $(basename "{{artifact_url}}")
+
   - command: mv {{ artifact_url | basename}} {{context}}.war
     args:
       chdir: /tmp
+      
   - name: donwloading latest artifact
     copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=0755 owner=tomcat group=tomcat force=yes
+    
   - file: path=/tmp/{{context}}.war state=absent
 
   - name: change default port for tomcat
