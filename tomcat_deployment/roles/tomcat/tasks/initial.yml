@@ -84,7 +84,10 @@
     copy: src=tomcat-init-script.sh dest=/etc/init.d/tomcat mode=0755
 
   - name: Start Tomcat
-    service: name=tomcat state=started enabled=yes
+    shell: service tomcat start
+    become: yes
+    become_method: sudo
+#    service: name=tomcat state=started enabled=yes
 
   - name: wait for tomcat to start
     wait_for: port={{http_port}}
