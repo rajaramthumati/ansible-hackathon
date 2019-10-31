@@ -2,6 +2,6 @@
 - hosts: "{{environmentt}}"
   become: yes
   become_method: sudo
-  remote_user: tomcat
+  remote_user: root
   roles:
   - tomcat
