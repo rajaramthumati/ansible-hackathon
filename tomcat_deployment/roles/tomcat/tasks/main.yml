@@ -2,11 +2,11 @@
   - include_vars: vault.yml
 
   - name: checking whether tomcat deployment is already there or not
-    stat: path=/opt/tomcat
-    register: tomcat_existence
+    shell: docker ps
+    register: deploy_existence
 
   - include: initial.yml
-    when: not tomcat_existence.stat.exists
+    when: not deploy_existence | search("latest1")
 
   - include: update.yml
-    when: tomcat_existence.stat.exists and tomcat_existence.stat.isdir
+    when: not deploy_existence | search("latest1")

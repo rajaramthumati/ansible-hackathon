@@ -1,44 +1,12 @@
 ---
-
-  - stat: path=/opt/tomcat/{{tomcat_directory_name}}/webapps/{{context}}
-    register: context_existence
-
-  - name: archiving existing artifact data
-    shell: tar cvf ../{{context}}-archive.tar {{context}}*
-    args:
-      chdir: /opt/tomcat/{{tomcat_directory_name}}/webapps/
-    when: context_existence.stat.exists
+- name: stop old container
+  shell: docker rm $(docker ps -a|grep latest1|awk {'print $1'})
   
-  - stat: path=../{{context}}-archive.tar
-    register: backup_existence
+- name: remove old images
+  shell: docker rmi -f $(docker images|grep latest1|awk {'print $3'})
+  
+- name: pull new image
+  shell: docker pull hackathon:latest1
 
-
-  - copy: src="{{artifact_url}}" dest=/tmp/ mode=0755 owner=tomcat group=tomcat force=yes
-#  - shell: echo $(basename "{{artifact_url}}")
-  - command: mv {{ artifact_url | basename}} {{context}}.war
-    args:
-      chdir: /tmp
-  - name: donwloading latest artifact
-    copy: src=/tmp/{{context}}.war dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=0755 owner=tomcat group=tomcat force=yes
-
-  - file: path=/tmp/{{context}}.war state=absent
-
-
-#  - name: copying new artifact
-#    get_url: url="https://updates.jenkins-ci.org/latest/jenkins.war" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 force=yes
-#    copy: src="{{artifact_url}}" dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ mode=0755 group=tomcat owner=tomcat force=yes
-
-  - name: checking health
-    uri: url=http://{{inventory_hostname}}:{{http_port}}/{{context}} user={{tomcat_admin_username}} password={{tomcat_admin_password}} status_code=302 timeout=300
-    register: result_health_check
-    ignore_errors: yes
-
-  - name: reverting deployment if health check fails
-    unarchive: src=../{{context}}-archive.tar dest=/opt/tomcat/{{tomcat_directory_name}}/webapps/ remote_src=yes mode=u+x
-    when: result_health_check |failed and context_existence.stat.exists and backup_existence.stat.exists
-
-  - name: wait for tomcat to start
-    wait_for: port={{http_port}} timeout=300
-
-# - fail: msg="deployment failed with errors"
-#    when: result_health_check |failed
+- name: run latest1
+  shell: docker run -dit -p 8077:8080 hackathon:latest1
