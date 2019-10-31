@@ -1,6 +1,6 @@
 ---
 - name: pull new image
-  shell: docker pull hackathon:latest1
+  shell: docker pull localhost:5000/hackathon:latest1
 
 - name: run latest1
-  shell: docker run -dit -p 8099:8080 hackathon:latest1
+  shell: docker run -dit -p 8099:8080 localhost:5000/hackathon:latest1
