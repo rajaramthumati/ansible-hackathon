@@ -6,7 +6,7 @@
     register: deploy_existence
 
   - include: initial.yml
-    when: deploy_existence.find('latest1') == -1
+    when: deploy_existence.stdout.find('latest1') == -1
 
   - include: update.yml
-    when: deploy_existence.find('latest1') == 0
+    when: deploy_existence.stdout.find('latest1') != -1
