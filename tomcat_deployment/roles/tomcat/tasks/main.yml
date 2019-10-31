@@ -6,7 +6,7 @@
     register: deploy_existence
 
   - include: initial.yml
-    when: not deploy_existence | search("latest1")
+    when: ({% if not deploy_existence | search(\"latest1\") %} True {% else %} False {% endif %})
 
   - include: update.yml
-    when: not deploy_existence | search("latest1")
+    when: ({% if deploy_existence | search(\"latest1\") %} True {% else %} False {% endif %})
